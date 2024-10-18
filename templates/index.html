@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agriculture Price Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .form-section {
+            flex: 1;
+            padding: 20px;
+        }
+        .plot-section {
+            flex: 2;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label, input, button {
+            margin-bottom: 10px;
+        }
+        canvas {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>Agriculture Price Prediction</h1>
+            <form method="POST">
+                <label for="district">District:</label>
+                <input type="text" id="district" name="district" required>
+                <label for="variety">Variety:</label>
+                <input type="text" id="variety" name="variety" required>
+                <label for="future_date">Future Date (YYYY-MM-DD):</label>
+                <input type="date" id="future_date" name="future_date" required>
+                <button type="submit">Predict Price</button>
+            </form>
+
+            {% if price %}
+                <h2>Predicted Price: {{ price }}</h2>
+            {% endif %}
+        </div>
+        <div class="plot-section">
+            <h2>Price Trends</h2>
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const priceData = JSON.parse('{{ historical_data | safe }}');
+        const labels = priceData.map(item => item.date);
+        const values = priceData.map(item => item.value);
+
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Price Trend',
+                    data: values,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Price'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
